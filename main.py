@@ -16,8 +16,13 @@ from math import sqrt
 data = pd.read_csv("result.csv", sep=',', names=['date', 'open', 'high', 'low', 'close', 'volume'])
 
 def train_data():
+    # Drop our target from our list of features
     X = data.drop(["high"], axis=1)
+    
+    # Single out our target column
     y = data["high"]
+    
+    # Parse the dates from the file
     new_dates = []
     dates = data["date"]
     for day in dates:
@@ -25,8 +30,9 @@ def train_data():
         day2 = (day - datetime.datetime(1970, 1, 1)).total_seconds()
         new_dates.append(day2)
     X["date"] = new_dates
+    
+    # Split the test data from the training data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
-
     scaler = preprocessing.StandardScaler().fit(X_train)
     X_train_scaled = scaler.transform(X_train)
 
@@ -48,6 +54,8 @@ def train_data():
 
     joblib.dump(clf, 'stock_predictor.pkl')
 
+# TODO Fix this error:  ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature 
+# (n?,k),(k,m?)->(n?,m?) (size 5 is different from 2)
 def predict_price():
     clf = joblib.load('stock_predictor.pkl')
     print("-" * 48)
